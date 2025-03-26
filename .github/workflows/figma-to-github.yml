@@ -27,4 +27,6 @@ jobs:
         FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        node figmatogithub.js
+        run: |
+        node figma/figmatogithub.js
+
