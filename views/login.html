@@ -151,32 +151,63 @@
   <div class="login-container">
     <h2>Login</h2>
 
-    <form action="/login" method="post">
-      <div class="alert" style="<%= mensagem ? 'display: block;' : 'display: none;' %>">
-        <%= mensagem %>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="alert" id="mensagemErro" style="display: none;"></div>
+
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
       </div>
 
       <div class="form-group">
-        <label for="username">Email</label>
-        <input type="text" name="usuario" placeholder="Digite seu email" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input type="password" name="senha" placeholder="Digite sua senha" required>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
       </div>
 
       <button type="submit" class="btn">Entrar</button>
 
       <div class="link">
-        <p>Ainda não tem uma conta? <a href="/views/criarConta.html">Criar conta</a></p>
+        <p>Ainda não tem uma conta? <a href="/criar-conta">Criar conta</a></p>
       </div>
-</div>
     </form>
   </div>
   <footer>
     &copy; 2025 Caderno Digital — Todos os direitos reservados.
   </footer>
+
+  <script>
+    async function handleLogin(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const mensagemErro = document.getElementById('mensagemErro');
+
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, senha })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Login bem sucedido
+          window.location.href = '/dicas';
+        } else {
+          // Exibe mensagem de erro
+          mensagemErro.textContent = data.erro || 'Erro ao fazer login';
+          mensagemErro.style.display = 'block';
+        }
+      } catch (erro) {
+        mensagemErro.textContent = 'Erro ao conectar com o servidor';
+        mensagemErro.style.display = 'block';
+      }
+    }
+  </script>
 </body>
 </html>
 

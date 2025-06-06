@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Disciplinas - Caderno Digital</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 200px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #0b0831;
+      color: white;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      z-index: 999;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 15px;
+      font-family: 'Trebuchet MS', sans-serif;
+      font-size: 1.2em;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      background-color: #575757;
+    }
+
+    .content {
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #0a192f;
+      margin-bottom: 30px;
+      text-align: center;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #0b0831;
+      font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-submit {
+      background-color: #0b0831;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .btn-submit:hover {
+      background-color: #1a1660;
+    }
+
+    .disciplinas-container {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .disciplina-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .disciplina-titulo {
+      font-size: 1.2em;
+      color: #0b0831;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .disciplina-info {
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .disciplina-professor {
+      color: #666;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .disciplina-periodo {
+      display: inline-block;
+      padding: 3px 8px;
+      background-color: #e0e0e0;
+      border-radius: 15px;
+      font-size: 12px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #333;
+      border-radius: 8px;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      display: none;
+      z-index: 1000;
+    }
+
+    #logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+    }
+
+    #logo img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .btn-delete {
+      background-color: #dc3545;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+
+      .toggle-btn {
+        display: block;
+      }
+
+      #logo {
+        margin-top: 70px;
+      }
+
+      .disciplinas-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+  <div class="sidebar" id="sidebar">
+    <div id="logo">
+      <img src="/views/img/img5.jpg" alt="Serafim">
+    </div>
+    <a href="/sobre">Sobre</a>
+    <a href="/dicas">Dicas</a>
+    <a href="/disciplinas">Disciplinas</a>
+    <a href="/anotacoes">Anotações</a>
+    <a href="/lembretes">Lembretes</a>
+  </div>
+
+  <div class="content">
+    <main>
+      <h1>Minhas Disciplinas</h1>
+
+      <div class="form-container">
+        <form id="disciplinaForm" onsubmit="criarDisciplina(event)">
+          <div class="form-group">
+            <label for="nome">Nome da Disciplina</label>
+            <input type="text" id="nome" name="nome" required>
+          </div>
+
+          <div class="form-group">
+            <label for="professor">Professor</label>
+            <input type="text" id="professor" name="professor" required>
+          </div>
+
+          <div class="form-group">
+            <label for="periodo">Período</label>
+            <input type="text" id="periodo" name="periodo" required>
+          </div>
+
+          <div class="form-group">
+            <label for="descricao">Descrição</label>
+            <textarea id="descricao" name="descricao"></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">Criar Disciplina</button>
+        </form>
+      </div>
+
+      <div id="disciplinasContainer" class="disciplinas-container"></div>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    async function deletarDisciplina(id) {
+      if (!confirm('Tem certeza que deseja deletar esta disciplina?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/disciplinas/${id}`, {
+          method: 'DELETE'
+        });
+
+        if (response.status === 204) {
+          alert('Disciplina deletada com sucesso!');
+          carregarDisciplinas();
+        } else {
+          const erro = await response.json();
+          alert('Erro ao deletar disciplina: ' + erro.erro);
+        }
+      } catch (erro) {
+        console.error('Erro ao deletar disciplina:', erro);
+        alert('Erro ao deletar disciplina');
+      }
+    }
+
+    async function criarDisciplina(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      const disciplina = Object.fromEntries(formData.entries());
+
+      try {
+        const response = await fetch('/api/disciplinas', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(disciplina)
+        });
+
+        if (response.ok) {
+          alert('Disciplina criada com sucesso!');
+          event.target.reset();
+          carregarDisciplinas();
+        } else {
+          const erro = await response.json();
+          alert('Erro ao criar disciplina: ' + erro.erro);
+        }
+      } catch (erro) {
+        console.error('Erro ao criar disciplina:', erro);
+        alert('Erro ao criar disciplina');
+      }
+    }
+
+    async function carregarDisciplinas() {
+      try {
+        const response = await fetch('/api/disciplinas');
+        const disciplinas = await response.json();
+        const container = document.getElementById('disciplinasContainer');
+        container.innerHTML = '';
+
+        disciplinas.forEach(disciplina => {
+          const card = document.createElement('div');
+          card.className = 'disciplina-card';
+
+          const titulo = document.createElement('div');
+          titulo.className = 'disciplina-titulo';
+          titulo.textContent = disciplina.nome;
+
+          const professor = document.createElement('div');
+          professor.className = 'disciplina-professor';
+          professor.textContent = `Professor: ${disciplina.professor}`;
+
+          const periodo = document.createElement('div');
+          periodo.className = 'disciplina-periodo';
+          periodo.textContent = disciplina.periodo;
+
+          const descricao = document.createElement('div');
+          descricao.className = 'disciplina-info';
+          descricao.textContent = disciplina.descricao || 'Sem descrição';
+
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+
+          const btnDelete = document.createElement('button');
+          btnDelete.className = 'btn-delete';
+          btnDelete.textContent = 'Deletar';
+          btnDelete.onclick = () => deletarDisciplina(disciplina.id);
+
+          actions.appendChild(btnDelete);
+
+          card.appendChild(titulo);
+          card.appendChild(professor);
+          card.appendChild(periodo);
+          card.appendChild(descricao);
+          card.appendChild(actions);
+
+          container.appendChild(card);
+        });
+      } catch (erro) {
+        console.error('Erro ao carregar disciplinas:', erro);
+      }
+    }
+
+    // Carregar disciplinas ao iniciar a página
+    document.addEventListener('DOMContentLoaded', carregarDisciplinas);
+  </script>
+</body>
+</html> 

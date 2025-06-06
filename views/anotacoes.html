@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anotações - Caderno Digital</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 200px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #0b0831;
+      color: white;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      z-index: 999;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 15px;
+      font-family: 'Trebuchet MS', sans-serif;
+      font-size: 1.2em;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      background-color: #575757;
+    }
+
+    .content {
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #0a192f;
+      margin-bottom: 30px;
+      text-align: center;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    .anotacoes-container {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .anotacao-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .anotacao-titulo {
+      font-size: 1.2em;
+      color: #0b0831;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .anotacao-conteudo {
+      color: #333;
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .anotacao-imagem {
+      width: 100%;
+      max-height: 200px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .anotacao-data {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #333;
+      border-radius: 8px;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      display: none;
+      z-index: 1000;
+    }
+
+    #logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+    }
+
+    #logo img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+
+      .toggle-btn {
+        display: block;
+      }
+
+      #logo {
+        margin-top: 70px;
+      }
+
+      .anotacoes-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Estilos para o formulário de criação */
+    .form-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #0b0831;
+      font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-submit {
+      background-color: #0b0831;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+
+    .btn-submit:hover {
+      background-color: #1a1660;
+    }
+
+    /* Ajuste para preview da imagem */
+    .image-preview {
+      max-width: 200px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .image-preview img {
+      width: 100%;
+      border-radius: 5px;
+    }
+
+    .disciplina-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .disciplina-titulo {
+      font-size: 1.3em;
+      color: #0b0831;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .anotacoes-disciplina {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+    }
+
+    .close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+  <div class="sidebar" id="sidebar">
+    <div id="logo">
+      <img src="/views/img/img5.jpg" alt="Serafim">
+    </div>
+    <a href="/sobre">Sobre</a>
+    <a href="/dicas">Dicas</a>
+    <a href="/disciplinas">Disciplinas</a>
+    <a href="/anotacoes">Anotações</a>
+    <a href="/lembretes">Lembretes</a>
+  </div>
+
+  <div class="content">
+    <main>
+      <h1>📝 Minhas Anotações</h1>
+      
+      <!-- Formulário de criação -->
+      <div class="form-container">
+        <form id="anotacaoForm" onsubmit="criarAnotacao(event)">
+          <div class="form-group">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="disciplina">Disciplina</label>
+            <select id="disciplina" name="disciplinaId">
+              <option value="">Selecione uma disciplina</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="conteudo">Conteúdo</label>
+            <textarea id="conteudo" name="conteudo" required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="imagem">Imagem (opcional)</label>
+            <input type="file" id="imagem" name="imagem" accept="image/*" onchange="previewImagem(event)">
+            <div class="image-preview" id="imagePreview">
+              <img src="" alt="Preview">
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-submit">Criar Anotação</button>
+        </form>
+      </div>
+
+      <div id="anotacoesContainer">
+        <!-- As anotações serão organizadas por grupo aqui -->
+      </div>
+    </main>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    function previewImagem(event) {
+      const preview = document.getElementById('imagePreview');
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function() {
+        preview.querySelector('img').src = reader.result;
+        preview.style.display = 'block';
+      }
+
+      if (file) {
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function carregarDisciplinas() {
+      try {
+        const response = await fetch('/api/disciplinas');
+        const disciplinas = await response.json();
+        const select = document.getElementById('disciplina');
+
+        disciplinas.forEach(disciplina => {
+          const option = document.createElement('option');
+          option.value = disciplina.id;
+          option.textContent = disciplina.nome;
+          select.appendChild(option);
+        });
+      } catch (erro) {
+        console.error('Erro ao carregar disciplinas:', erro);
+      }
+    }
+
+    async function criarAnotacao(event) {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+
+      try {
+        const response = await fetch('/api/anotacoes', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          alert('Anotação criada com sucesso!');
+          event.target.reset();
+          document.getElementById('imagePreview').style.display = 'none';
+          carregarAnotacoes();
+        } else {
+          const erro = await response.json();
+          alert('Erro ao criar anotação: ' + erro.erro);
+        }
+      } catch (erro) {
+        console.error('Erro ao criar anotação:', erro);
+        alert('Erro ao criar anotação');
+      }
+    }
+
+    async function carregarAnotacoes() {
+      try {
+        const response = await fetch('/api/anotacoes');
+        const anotacoes = await response.json();
+        const container = document.getElementById('anotacoesContainer');
+        container.innerHTML = '';
+
+        // Agrupar anotações por disciplina
+        const anotacoesPorDisciplina = {};
+        anotacoes.forEach(anotacao => {
+          const disciplinaId = anotacao.disciplinaId || 'sem-disciplina';
+          if (!anotacoesPorDisciplina[disciplinaId]) {
+            anotacoesPorDisciplina[disciplinaId] = {
+              disciplina: anotacao.disciplina,
+              anotacoes: []
+            };
+          }
+          anotacoesPorDisciplina[disciplinaId].anotacoes.push(anotacao);
+        });
+
+        // Criar containers para cada disciplina
+        Object.entries(anotacoesPorDisciplina).forEach(([disciplinaId, dados]) => {
+          const disciplinaContainer = document.createElement('div');
+          disciplinaContainer.className = 'disciplina-container';
+          
+          const titulo = document.createElement('h2');
+          titulo.className = 'disciplina-titulo';
+          titulo.textContent = dados.disciplina ? dados.disciplina.nome : 'Anotações sem disciplina';
+          
+          const anotacoesGrid = document.createElement('div');
+          anotacoesGrid.className = 'anotacoes-disciplina';
+          
+          dados.anotacoes.forEach(anotacao => {
+            const card = criarCardAnotacao(anotacao);
+            anotacoesGrid.appendChild(card);
+          });
+          
+          disciplinaContainer.appendChild(titulo);
+          disciplinaContainer.appendChild(anotacoesGrid);
+          container.appendChild(disciplinaContainer);
+        });
+      } catch (erro) {
+        console.error('Erro ao carregar anotações:', erro);
+      }
+    }
+
+    function criarCardAnotacao(anotacao) {
+      const card = document.createElement('div');
+      card.className = 'anotacao-card';
+      
+      const titulo = document.createElement('div');
+      titulo.className = 'anotacao-titulo';
+      titulo.textContent = anotacao.titulo;
+      
+      const conteudo = document.createElement('div');
+      conteudo.className = 'anotacao-conteudo';
+      conteudo.textContent = anotacao.conteudo;
+      
+      card.appendChild(titulo);
+      card.appendChild(conteudo);
+      
+      if (anotacao.midia) {
+        const imagem = document.createElement('img');
+        imagem.className = 'anotacao-imagem';
+        imagem.src = `/uploads/${anotacao.midia}`;
+        imagem.alt = anotacao.titulo;
+        card.appendChild(imagem);
+      }
+      
+      const data = document.createElement('div');
+      data.className = 'anotacao-data';
+      data.textContent = new Date(anotacao.criadoEm).toLocaleDateString();
+      card.appendChild(data);
+      
+      return card;
+    }
+
+    // Carregar dados ao iniciar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarDisciplinas();
+      carregarAnotacoes();
+      
+      // Configurar preview de imagem
+      const inputImagem = document.getElementById('imagem');
+      const preview = document.getElementById('preview');
+      const previewContainer = document.querySelector('.image-preview');
+      
+      inputImagem.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.style.display = 'block';
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+      
+      // Configurar envio do formulário
+      const form = document.getElementById('anotacaoForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        
+        try {
+          const response = await fetch('/api/anotacoes', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (response.ok) {
+            form.reset();
+            previewContainer.style.display = 'none';
+            carregarAnotacoes();
+          } else {
+            const erro = await response.json();
+            alert(erro.erro || 'Erro ao criar anotação');
+          }
+        } catch (erro) {
+          console.error('Erro ao enviar anotação:', erro);
+          alert('Erro ao criar anotação');
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

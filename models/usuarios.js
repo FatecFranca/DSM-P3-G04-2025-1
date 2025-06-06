@@ -1,31 +1,47 @@
-const { PrismaClient } = require('@prisma/client')
-const bcrypt = require('bcryptjs')
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
-const prisma = new PrismaClient()
-
-const usuarioModel = {
-  async criar(dados) {
-    const hashSenha = await bcrypt.hash(dados.senha, 10)
-    
-    return prisma.usuario.create({
-      data: {
-        nome: dados.nome,
-        email: dados.email,
-        senha: hashSenha,
-        nascimento: new Date(dados.nascimento)
-      }
-    })
+module.exports = {
+  async criarUsuario(dados) {
+    return await prisma.usuario.create({
+      data: dados
+    });
   },
 
   async buscarPorEmail(email) {
-    return prisma.usuario.findUnique({
+    return await prisma.usuario.findUnique({
       where: { email }
-    })
+    });
   },
 
-  async validarSenha(senha, hashSenha) {
-    return bcrypt.compare(senha, hashSenha)
-  }
-}
+  async buscarPorId(id) {
+    return await prisma.usuario.findUnique({
+      where: { id }
+    });
+  },
 
-module.exports = usuarioModel 
+  async listarUsuarios() {
+    return await prisma.usuario.findMany({
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        nascimento: true,
+        criadoEm: true
+      }
+    });
+  },
+
+  async atualizarUsuario(id, dados) {
+    return await prisma.usuario.update({
+      where: { id },
+      data: dados
+    });
+  },
+
+  async deletarUsuario(id) {
+    return await prisma.usuario.delete({
+      where: { id }
+    });
+  }
+};

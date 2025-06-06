@@ -151,43 +151,78 @@
   <div class="login-container">
     <h2>Registre seus Dados</h2>
 
-    <form action="/login" method="post">
-      <div class="alert" style="<%= mensagem ? 'display: block;' : 'display: none;' %>">
-        <%= mensagem %>
+    <form id="registroForm" onsubmit="handleRegistro(event)">
+      <div class="alert" id="mensagemErro" style="display: none;"></div>
+
+      <div class="form-group">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+      </div>
+      <div class="form-group">
+        <label for="nascimento">Nascimento</label>
+        <input type="date" id="nascimento" name="nascimento" required>
+      </div>
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
       </div>
 
       <div class="form-group">
-        <label for="username">Nome</label>
-        <input type="text" name="nome" placeholder="Digite seu nome completo" required>
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
       </div>
       <div class="form-group">
-        <label for="username">Nascimento</label>
-        <input type="date" name="idade" placeholder="00/00/0000" required>
+        <label for="senha2">Confirme sua Senha</label>
+        <input type="password" id="senha2" name="senha2" placeholder="Digite sua senha novamente" required>
       </div>
-      <div class="form-group">
-        <label for="username">Email</label>
-        <input type="text" name="email" placeholder="Digite seu email" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Senha</label>
-        <input type="password" name="senha" placeholder="Digite sua senha" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Confirme sua Senha</label>
-        <input type="password" name="senha2" placeholder="Digite sua senha novamente" required>
 
       <button type="submit" class="btn">Cadastrar</button>
 
       <div class="link">
-        <p>Já tem uma conta? <a href="/views/login.html">Fazer login</a></p>
+        <p>Já tem uma conta? <a href="/">Fazer login</a></p>
       </div>
-</div>
     </form>
   </div>
   <footer>
     &copy; 2025 Caderno Digital — Todos os direitos reservados.
   </footer>
+
+  <script>
+    async function handleRegistro(event) {
+      event.preventDefault();
+      
+      const nome = document.getElementById('nome').value;
+      const nascimento = document.getElementById('nascimento').value;
+      const email = document.getElementById('email').value;
+      const senha = document.getElementById('senha').value;
+      const senha2 = document.getElementById('senha2').value;
+      const mensagemErro = document.getElementById('mensagemErro');
+
+      try {
+        const response = await fetch('/api/usuarios/registrar', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nome, nascimento, email, senha, senha2 })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Registro bem sucedido, redireciona para login
+          window.location.href = '/';
+        } else {
+          // Exibe mensagem de erro
+          mensagemErro.textContent = data.erro || 'Erro ao registrar usuário';
+          mensagemErro.style.display = 'block';
+        }
+      } catch (erro) {
+        mensagemErro.textContent = 'Erro ao conectar com o servidor';
+        mensagemErro.style.display = 'block';
+      }
+    }
+  </script>
 </body>
 </html>
 

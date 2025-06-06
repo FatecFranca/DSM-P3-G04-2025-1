@@ -1,1 +1,65 @@
- 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  nome       String
+  nascimento DateTime
+  email      String     @unique
+  senha      String
+  criadoEm   DateTime   @default(now())
+  anotacoes  Anotacao[]
+  lembretes  Lembrete[]
+}
+
+model Disciplina {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  nome        String
+  professor   String
+  periodo     String
+  descricao   String?
+  criadoEm    DateTime   @default(now())
+  anotacoes   Anotacao[]
+  dicas       Dica[]
+}
+
+model Dica {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  titulo      String
+  conteudo    String
+  disciplina  Disciplina? @relation(fields: [disciplinaId], references: [id])
+  disciplinaId String?    @db.ObjectId
+  criadoEm    DateTime   @default(now())
+}
+
+model Anotacao {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  titulo       String
+  conteudo     String
+  midia        String?    
+  tipo         String     
+  criadoEm     DateTime   @default(now())
+  ultimaEdicao DateTime?  @default(now())
+  disciplina   Disciplina? @relation(fields: [disciplinaId], references: [id])
+  disciplinaId String?     @db.ObjectId
+  usuario      Usuario    @relation(fields: [usuarioId], references: [id])
+  usuarioId    String     @db.ObjectId
+}
+
+model Lembrete {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  titulo    String
+  conteudo  String
+  data      DateTime
+  criadoEm  DateTime @default(now())
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId String   @db.ObjectId
+}
+
+

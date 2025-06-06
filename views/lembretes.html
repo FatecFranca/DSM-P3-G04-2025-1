@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lembretes - Caderno Digital</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: #333;
+      border-radius: 8px;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      display: none;
+      z-index: 1000;
+    }
+
+    .sidebar {
+      height: 100vh;
+      width: 200px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #0b0831;
+      color: white;
+      padding-top: 20px;
+      transition: transform 0.3s ease;
+      z-index: 999;
+      overflow-y: auto;
+    }
+
+    #logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 20px auto;
+    }
+
+    #logo img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      padding: 15px;
+      font-family: 'Trebuchet MS', sans-serif;
+      font-size: 1.2em;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #575757;
+    }
+
+    .content {
+      margin-left: 200px;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #0a192f;
+      margin-bottom: 30px;
+      text-align: center;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    #calendar {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      height: calc(100vh - 200px);
+    }
+
+    .fc {
+      height: 100%;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .close:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #0b0831;
+      font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-submit {
+      background-color: #0b0831;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s;
+    }
+
+    .btn-submit:hover {
+      background-color: #1a1660;
+    }
+
+    .fc-event {
+      cursor: pointer;
+      padding: 5px;
+      margin: 2px 0;
+      border-radius: 3px;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.5em !important;
+      color: #0b0831;
+    }
+
+    .fc-button-primary {
+      background-color: #0b0831 !important;
+      border-color: #0b0831 !important;
+    }
+
+    .fc-button-primary:hover {
+      background-color: #1a1660 !important;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+        padding-top: 80px;
+      }
+
+      .toggle-btn {
+        display: block;
+      }
+
+      #logo {
+        margin-top: 70px;
+      }
+
+      #calendar {
+        height: calc(100vh - 150px);
+        padding: 10px;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
+
+      .fc-toolbar {
+        flex-direction: column;
+      }
+
+      .fc-toolbar-chunk {
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+  <div class="sidebar" id="sidebar">
+    <div id="logo">
+      <img src="/views/img/img5.jpg" alt="Serafim">
+    </div>
+    <a href="/sobre">Sobre</a>
+    <a href="/dicas">Dicas</a>
+    <a href="/disciplinas">Disciplinas</a>
+    <a href="/anotacoes">Anotações</a>
+    <a href="/lembretes">Lembretes</a>
+  </div>
+
+  <div class="content">
+    <main>
+      <h1>📅 Meus Lembretes</h1>
+      <div id="calendar"></div>
+    </main>
+  </div>
+
+  <div id="lembreteModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal()">&times;</span>
+      <h2>Adicionar Lembrete</h2>
+      <form id="lembreteForm" onsubmit="salvarLembrete(event)">
+        <input type="hidden" id="dataLembrete">
+        <div class="form-group">
+          <label for="titulo">Título</label>
+          <input type="text" id="titulo" name="titulo" required>
+        </div>
+        <div class="form-group">
+          <label for="conteudo">Conteúdo</label>
+          <textarea id="conteudo" name="conteudo" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Salvar Lembrete</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let calendar;
+    let lembretes = [];
+    let editandoLembreteId = null;
+
+    async function verificarAutenticacao() {
+      try {
+        const response = await fetch('/api/login/verificar');
+        const data = await response.json();
+        if (!data.autenticado) {
+          window.location.href = '/';
+        }
+      } catch (erro) {
+        console.error('Erro ao verificar autenticação:', erro);
+        window.location.href = '/';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      await verificarAutenticacao();
+      
+      const calendarEl = document.getElementById('calendar');
+      calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'pt-br',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        dateClick: function(info) {
+          editandoLembreteId = null;
+          abrirModal(info.dateStr);
+        },
+        eventClick: function(info) {
+          editarLembrete(info.event);
+        },
+        events: function(info, successCallback, failureCallback) {
+          carregarLembretes().then(() => {
+            const eventos = lembretes.map(lembrete => ({
+              id: lembrete.id,
+              title: lembrete.titulo,
+              start: lembrete.data,
+              description: lembrete.conteudo,
+              allDay: true
+            }));
+            successCallback(eventos);
+          }).catch(erro => {
+            console.error('Erro ao carregar eventos:', erro);
+            failureCallback(erro);
+          });
+        }
+      });
+      calendar.render();
+    });
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('active');
+    }
+
+    async function carregarLembretes() {
+      try {
+        const response = await fetch('/api/lembretes');
+        if (response.status === 401) {
+          window.location.href = '/';
+          return;
+        }
+        if (!response.ok) {
+          throw new Error('Erro ao carregar lembretes');
+        }
+        lembretes = await response.json();
+      } catch (erro) {
+        console.error('Erro ao carregar lembretes:', erro);
+        if (erro.status === 401) {
+          window.location.href = '/';
+        }
+        alert('Erro ao carregar lembretes. Por favor, recarregue a página.');
+      }
+    }
+
+    function abrirModal(data) {
+      document.getElementById('dataLembrete').value = data;
+      document.getElementById('lembreteModal').style.display = 'block';
+      document.getElementById('lembreteForm').reset();
+      document.querySelector('.modal h2').textContent = editandoLembreteId ? 'Editar Lembrete' : 'Adicionar Lembrete';
+      if (data) {
+        document.getElementById('dataLembrete').value = data;
+      }
+    }
+
+    function fecharModal() {
+      document.getElementById('lembreteModal').style.display = 'none';
+      editandoLembreteId = null;
+    }
+
+    async function salvarLembrete(event) {
+      event.preventDefault();
+      const form = event.target;
+      const btnSubmit = form.querySelector('.btn-submit');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Salvando...';
+
+      try {
+        const dataStr = document.getElementById('dataLembrete').value;
+        const data = new Date(dataStr);
+        data.setHours(12); 
+
+        const dadosLembrete = {
+          titulo: form.titulo.value,
+          conteudo: form.conteudo.value,
+          data: data.toISOString()
+        };
+
+        const url = editandoLembreteId 
+          ? `/api/lembretes/${editandoLembreteId}`
+          : '/api/lembretes';
+        
+        const method = editandoLembreteId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dadosLembrete)
+        });
+
+        if (!response.ok) {
+          const erro = await response.json();
+          throw new Error(erro.erro || 'Erro ao salvar lembrete');
+        }
+
+        fecharModal();
+        calendar.refetchEvents();
+        alert(editandoLembreteId ? 'Lembrete atualizado com sucesso!' : 'Lembrete criado com sucesso!');
+      } catch (erro) {
+        console.error('Erro ao salvar lembrete:', erro);
+        alert(erro.message || 'Erro ao salvar lembrete. Tente novamente.');
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Salvar Lembrete';
+      }
+    }
+
+    function editarLembrete(evento) {
+      const lembrete = lembretes.find(l => l.id === evento.id);
+      if (lembrete) {
+        editandoLembreteId = lembrete.id;
+        const data = new Date(lembrete.data);
+        document.getElementById('dataLembrete').value = data.toISOString().split('T')[0];
+        document.getElementById('titulo').value = lembrete.titulo;
+        document.getElementById('conteudo').value = lembrete.conteudo;
+        document.querySelector('.modal h2').textContent = 'Editar Lembrete';
+        document.getElementById('lembreteModal').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html> 
