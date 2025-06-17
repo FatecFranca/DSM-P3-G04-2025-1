@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+node_modules/
+uploads/
+.env
+dist/
+=======
 .node_modules
 
 /generated/prisma
+>>>>>>> 4fc9bfbac93e83a3f452cb225296c2695f6875c7
