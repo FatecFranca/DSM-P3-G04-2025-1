@@ -461,55 +461,24 @@
       return card;
     }
 
-    // Carregar dados ao iniciar a página
-    document.addEventListener('DOMContentLoaded', () => {
-      carregarDisciplinas();
-      carregarAnotacoes();
-      
-      // Configurar preview de imagem
-      const inputImagem = document.getElementById('imagem');
-      const preview = document.getElementById('preview');
-      const previewContainer = document.querySelector('.image-preview');
-      
-      inputImagem.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            preview.src = e.target.result;
-            previewContainer.style.display = 'block';
-          }
-          reader.readAsDataURL(file);
+    const inputImagem = document.getElementById('imagem');
+    const preview = document.getElementById('preview');
+    const previewContainer = document.querySelector('.image-preview');
+    
+    inputImagem.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.src = e.target.result;
+          previewContainer.style.display = 'block';
         }
-      });
-      
-      // Configurar envio do formulário
-      const form = document.getElementById('anotacaoForm');
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(form);
-        
-        try {
-          const response = await fetch('/api/anotacoes', {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (response.ok) {
-            form.reset();
-            previewContainer.style.display = 'none';
-            carregarAnotacoes();
-          } else {
-            const erro = await response.json();
-            alert(erro.erro || 'Erro ao criar anotação');
-          }
-        } catch (erro) {
-          console.error('Erro ao enviar anotação:', erro);
-          alert('Erro ao criar anotação');
-        }
-      });
+        reader.readAsDataURL(file);
+      }
     });
+    
+    carregarDisciplinas();
+    carregarAnotacoes();
   </script>
 </body>
 </html> 
